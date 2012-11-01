@@ -24,6 +24,7 @@ end
 
 group :test, :development do
   gem 'pry-rails'
+  gem 'thin'
 end
 
 gem 'jquery-rails'
