@@ -3,5 +3,7 @@ Crisco::Application.routes.draw do
 
   resources :links
 
+  root to: 'links#index'
+
   match '/:id' => 'links#show', as: :short_link
 end
