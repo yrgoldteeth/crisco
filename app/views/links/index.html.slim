@@ -1,1 +1,25 @@
-h1 Ya Bit?
+.container
+  .navbar.navbar-static-top
+    form class='navbar-form pull-left'
+      = text_field_tag(:original_url,'', placeholder: 'URL to shorten', class: 'input-xxlarge')
+      a href="javascript:void(0)" id='shorten_link' class='btn btn-small'
+        i class='icon-plus'
+.container
+  h1 Links
+  - if @links.any?
+    table.table#links
+      thead
+        tr
+          th Long
+          th Short
+          th Added
+          th
+      tbody
+      - @links.each do |link|
+        tr id=link.slug
+          td= link_to(link.original_url, link.original_url)
+          td= link_to(short_link_url(link), short_link_url(link))
+          td= time_tag(link.created_at, class: 'timeago')
+          td
+            a href="javascript:void(0)" id=link.slug class='btn delete btn-danger btn-small'
+              i class='icon-remove'

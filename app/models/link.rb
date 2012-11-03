@@ -6,12 +6,14 @@ class Link < ActiveRecord::Base
 
   after_initialize :handle_slug_creation, unless: :slug?
 
+  belongs_to :user
+
   def to_param
     slug
   end
 
   def handle_slug_creation
-    self.slug = SecureRandom.urlsafe_base64(5)
+    self.slug = SecureRandom.urlsafe_base64(4)
   end
 
 end

@@ -10,4 +10,6 @@ class User < ActiveRecord::Base
   # attr_accessible :title, :body
 
   before_save :ensure_authentication_token
+
+  has_many :links
 end
