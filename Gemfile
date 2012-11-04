@@ -9,6 +9,7 @@ gem 'unicorn'
 gem 'devise'
 gem 'bootstrap-sass-rails'
 gem 'slim-rails'
+gem 'version'
 
 # Gems used only for assets and not required
 # in production environments by default.
