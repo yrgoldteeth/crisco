@@ -1,10 +1,18 @@
+.navbar.navbar-static-top
+  .navbar-inner
+    .container
+      form class='navbar-form pull-left'
+        = text_field_tag(:original_url,'', placeholder: 'URL to shorten', class: 'input-xlarge')
+        a href="javascript:void(0)" id='shorten_link' class='btn btn-small'
+          i class='icon-plus'
+      ul.nav.pull-right
+        li
+          a href="javascript:void(0)" id='tweetbot_link' Show Tweetbot Link
+        li= link_to "Sign Out", destroy_user_session_path, method: :delete
+
 .container
-  .navbar.navbar-static-top
-    form class='navbar-form pull-left'
-      = text_field_tag(:original_url,'', placeholder: 'URL to shorten', class: 'input-xxlarge')
-      a href="javascript:void(0)" id='shorten_link' class='btn btn-small'
-        i class='icon-plus'
-.container
+  .alert.alert-info.tweetbot-share.hidden
+    p= tweetbot_custom_url(current_user)
   h1 Links
   table.table#links
     thead
@@ -22,4 +30,3 @@
         td
           a href="javascript:void(0)" id=link.slug class='btn delete btn-danger btn-small'
             i class='icon-remove'
-  p#tweetbot-share-url= tweetbot_custom_url(current_user)
