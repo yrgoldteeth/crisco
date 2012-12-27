@@ -4,15 +4,24 @@
     <div><%= f.label :email %><br />
     <%= f.email_field :email %></div>
 
-    <div><%= f.label :password %><br />
+  <div><%= f.label :password %><br />
     <%= f.password_field :password %></div>
 
-    <% if devise_mapping.rememberable? -%>
-      <div><%= f.check_box :remember_me %> <%= f.label :remember_me %></div>
-    <% end -%>
+  <% if devise_mapping.rememberable? -%>
+    <div><%= f.check_box :remember_me %> <%= f.label :remember_me %></div>
+<% end -%>
 
-    <div><%= f.submit "Sign in", class: 'btn' %></div>
-  <% end %>
+  <div><%= f.submit "Sign in", class: 'btn' %></div>
+<% end %>
 
   <%= render "devise/shared/links" %>
+</div>
+<div class='well'>
+  <p>
+  Powered By <a href="https://github.com/yrgoldteeth/crisco">crisco url shortener</a>
+  </p>
+  <p>
+  Version <%= link_to crisco_version, "https://github.com/yrgoldteeth/crisco/tree/#{crisco_version}" %> |
+  All Rites Reversed 2012 Ⓚ | <a href="http://ndfine.com">Nicholas Fine</a>
+  </p>
 </div>
