@@ -9,6 +9,7 @@ gem 'unicorn'
 gem 'devise'
 gem 'bootstrap-sass-rails'
 gem 'slim-rails'
+gem 'rabl-rails'
 gem 'version'
 
 # Gems used only for assets and not required
@@ -22,6 +23,7 @@ end
 group :test, :development do
   gem 'pry-rails'
   gem 'thin'
+  gem 'curb' #for cli
 end
 
 gem 'jquery-rails'

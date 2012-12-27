@@ -1,12 +1,10 @@
 development:
   adapter: postgresql
-  encoding: unicode
   database: crisco_development
-  pool: 5
+  host: localhost
 
 test:
   adapter: postgresql
-  encoding: unicode
   database: crisco_test
-  pool: 5
+  host: localhost
 
