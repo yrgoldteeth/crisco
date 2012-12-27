@@ -1,5 +1,6 @@
 .navbar.navbar-static-top
   .navbar-inner
+    a.brand href="/" Links
     .container
       form class='navbar-form pull-left'
         = text_field_tag(:original_url,'', placeholder: 'URL to shorten', class: 'input-xlarge')
@@ -13,7 +14,6 @@
 .container
   .alert.alert-info.tweetbot-share.hidden
     p= tweetbot_custom_url(current_user)
-  h1 Links
   table.table#links
     thead
       tr
