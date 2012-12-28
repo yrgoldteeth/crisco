@@ -4,6 +4,7 @@ linkRow = (original_url, short_url) ->
   row += cellForUrl(original_url)
   row += cellForUrl(short_url)
   row += "<td>Just Now</td>"
+  row += "<td>0</td>"
   row += "<td><a href='javascript:void(0)' id='#{slug}' class='btn delete btn-danger btn-small'><i class='icon-remove'></i></a></td></tr>"
   row
 
