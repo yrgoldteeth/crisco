@@ -6,17 +6,23 @@ require 'curb'
 require 'json'
 require 'ostruct'
 require 'active_support/core_ext/hash'
+require 'active_support/core_ext/array'
 
+class Api
 
-module Api
-  extend self
-
-  def get uri_path, params={}
-    full_uri = base_uri + uri_path
-    c = Curl.get(full_uri, params.merge(auth_token: auth_token)) do |curl|
-      curl.headers['Accept'] = 'application/json'
+  def method_missing meth, *args, &block
+    if [:get, :delete].include?(meth)
+      params = args.extract_options!
+      params.merge!(auth_token: auth_token)
+      full_uri = base_uri + args[0]
+      curl_args = [full_uri, params]
+      c = Curl.send(meth, *curl_args) do |curl|
+        curl.headers['Accept'] = 'application/json'
+      end
+      c.body_str
+    else
+      super
     end
-    c.body_str
   end
 
   private
@@ -46,7 +52,7 @@ class FetchLinksList
 
   private
   def raw_request_result
-    @result ||= Api.get("/links")
+    @result ||= Api.new.get("/links")
   end
 
   def parsed_results
@@ -76,7 +82,33 @@ class CreateNewLink
   end
 
   def raw_request_result
-    @result ||= Api.get("/l", {original_url: original_url})
+    @result ||= Api.new.get("/l", {original_url: original_url})
+  end
+end
+
+class DeleteLink
+
+  attr_reader :slug
+
+  def initialize slug
+    @slug = slug
+  end
+
+  def result_message
+    if parsed_results["success"]
+      "The link was successfully destroyed."
+    else
+      raise "An error occurred destroying the link"
+    end
+  end
+
+  private
+  def parsed_results
+    JSON.parse(raw_request_result)
+  end
+
+  def raw_request_result
+    @result ||= Api.new.delete("/links/#{slug}")
   end
 end
 
@@ -88,7 +120,7 @@ class Crisco < Thor
     table = [ ['Slug', 'Original URL', 'Short URL', 'Created At'] ]
     links_list = FetchLinksList.new
     links_list.each do |link|
-      table << [link.slug, link.original_url, link.short_url, link.created_at]
+      table << [link.slug, link.original_url[0..40], link.short_url, link.created_at]
     end
     print_table table
   end
@@ -102,6 +134,17 @@ class Crisco < Thor
     end
     linker = CreateNewLink.new(original_url)
     say linker.result_message
+  end
+
+  map "-d" => :delete
+
+  desc 'delete', 'delete a link'
+  def delete slug=nil
+    unless slug
+      slug = ask 'What is the slug of URL you would like to delete?'
+    end
+    deleter = DeleteLink.new(slug)
+    say deleter.result_message
   end
 end
 
