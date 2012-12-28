@@ -7,6 +7,7 @@ class Link < ActiveRecord::Base
   after_initialize :handle_slug_creation, unless: :slug?
 
   belongs_to :user
+  has_many :visits
 
   def to_param
     slug

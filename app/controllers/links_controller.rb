@@ -2,7 +2,7 @@ class LinksController < ApplicationController
   before_filter :authenticate_user!, except: [:show]
 
   def index
-    @links = current_user.links.order('created_at DESC')
+    @links = current_user.links.order('created_at DESC').includes(:visits)
   end
 
   def create
@@ -26,6 +26,7 @@ class LinksController < ApplicationController
   def show
     link = Link.find_by_slug params[:id]
     return head 404 unless link
+    link.visits.create
     redirect_to link.original_url, status: :moved_permanently
   end
 end

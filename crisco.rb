@@ -117,10 +117,10 @@ class Crisco < Thor
 
   desc 'list', 'list all shortened links'
   def list
-    table = [ ['Slug', 'Original URL', 'Short URL', 'Created At'] ]
+    table = [ ['Slug', 'Original URL', 'Short URL', 'Created At', 'Visit Count'] ]
     links_list = FetchLinksList.new
     links_list.each do |link|
-      table << [link.slug, link.original_url[0..40], link.short_url, link.created_at]
+      table << [link.slug, link.original_url[0..40], link.short_url, link.created_at, link.visits_count]
     end
     print_table table
   end
