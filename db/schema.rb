@@ -11,14 +11,15 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20121103171555) do
+ActiveRecord::Schema.define(:version => 20121228031800) do
 
   create_table "links", :force => true do |t|
     t.string   "original_url"
     t.string   "slug"
-    t.datetime "created_at",   :null => false
-    t.datetime "updated_at",   :null => false
+    t.datetime "created_at",                  :null => false
+    t.datetime "updated_at",                  :null => false
     t.integer  "user_id"
+    t.integer  "visits_count", :default => 0
   end
 
   add_index "links", ["slug"], :name => "index_links_on_slug", :unique => true
@@ -40,5 +41,13 @@ ActiveRecord::Schema.define(:version => 20121103171555) do
 
   add_index "users", ["authentication_token"], :name => "index_users_on_authentication_token", :unique => true
   add_index "users", ["email"], :name => "index_users_on_email", :unique => true
+
+  create_table "visits", :force => true do |t|
+    t.integer  "link_id"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
+  end
+
+  add_index "visits", ["link_id"], :name => "index_visits_on_link_id"
 
 end
