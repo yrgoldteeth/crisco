@@ -8,12 +8,18 @@
           i class='icon-plus'
       ul.nav.pull-right
         li
-          a href="javascript:void(0)" id='tweetbot_link' Show Tweetbot Link
+          a href="javascript:void(0)" id='share_info' Show Share Info
         li= link_to "Sign Out", destroy_user_session_path, method: :delete
 
 .container
-  .alert.alert-info.tweetbot-share.hidden
+  .alert.alert-block.alert-info.share-info.hidden
+    h5
+      Tweetbot Custom URL Shortening 
+      = link_to '*', "http://tapbots.net/tweetbot/custom_url/"
     p= tweetbot_custom_url(current_user)
+    br
+    h5 Example Curl Command
+    p= example_curl_command(current_user)
   table.table#links.condensed.table-hover
     thead
       tr
