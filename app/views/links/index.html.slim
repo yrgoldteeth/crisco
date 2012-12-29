@@ -13,9 +13,7 @@
 
 .container
   .alert.alert-block.alert-info.share-info.hidden
-    h5
-      Tweetbot Custom URL Shortening 
-      = link_to '*', "http://tapbots.net/tweetbot/custom_url/"
+    h5 Tweetbot Custom URL Shortening
     p= tweetbot_custom_url(current_user)
     br
     h5 Example Curl Command
@@ -38,3 +36,4 @@
         td
           a href="javascript:void(0)" id=link.slug class='btn delete btn-danger btn-small'
             i class='icon-remove'
+= render 'layouts/footer'
