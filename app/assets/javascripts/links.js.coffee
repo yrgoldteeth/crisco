@@ -15,13 +15,13 @@ $(document).ready ->
 
   $('body').timeago()
 
-  $('a#tweetbot_link').live 'click', ->
-    if $(this).text() == 'Show Tweetbot Link'
-      $(this).text('Hide Tweetbot Link')
-      $('.tweetbot-share').removeClass('hidden')
+  $('a#share_info').live 'click', ->
+    if $(this).text() == 'Show Share Info'
+      $(this).text('Hide Share Info')
+      $('.share-info').removeClass('hidden')
     else
-      $(this).text('Show Tweetbot Link')
-      $('.tweetbot-share').addClass('hidden')
+      $(this).text('Show Share Info')
+      $('.share-info').addClass('hidden')
 
   $('a.delete').live 'click', ->
     if confirm("Click OK to delete this link, or Cancel.")
