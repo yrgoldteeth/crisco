@@ -1,5 +1,5 @@
 class LinksController < ApplicationController
-  before_filter :authenticate_user!, except: [:show]
+  before_filter :authenticate_user!, except: [:forward_to_original_url]
 
   def index
     @links = current_user.links.order('created_at DESC').includes(:visits)
@@ -24,6 +24,10 @@ class LinksController < ApplicationController
   end
 
   def show
+    @link = current_user.links.find_by_slug(params[:id])
+  end
+
+  def forward_to_original_url
     link = Link.find_by_slug params[:id]
     return head 404 unless link
     link.visits.create

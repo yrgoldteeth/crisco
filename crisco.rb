@@ -8,24 +8,44 @@ require 'ostruct'
 require 'active_support/core_ext/hash'
 require 'active_support/core_ext/array'
 
+Link = Struct.new(:slug, :original_url, :short_url, :created_at, :visits_count) do
+  def self.from_hash(attributes)
+    instance = self.new
+    attributes.each do |key, value|
+      instance[key] = value
+    end
+    instance
+  end
+
+  def attributes
+    members.each_with_object({}) do |name, result|
+      result[name] = self[name]
+    end
+  end
+end
+
 class Api
 
   def method_missing meth, *args, &block
-    if [:get, :delete].include?(meth)
-      params = args.extract_options!
-      params.merge!(auth_token: auth_token)
-      full_uri = base_uri + args[0]
-      curl_args = [full_uri, params]
-      c = Curl.send(meth, *curl_args) do |curl|
-        curl.headers['Accept'] = 'application/json'
-      end
-      c.body_str
-    else
-      super
-    end
+    [:get, :delete].include?(meth) ? make_api_call(meth, args) : super
+  end
+
+  def respond_to? meth, include_private=false
+    [:get, :delete].include?(meth) || super
   end
 
   private
+  def make_api_call request_method, args
+    params = args.extract_options!
+    params.merge!(auth_token: auth_token)
+    full_uri = base_uri + args[0]
+    curl_args = [full_uri, params]
+    c = Curl.send(request_method, *curl_args) do |curl|
+      curl.headers['Accept'] = 'application/json'
+    end
+    c.body_str
+  end
+
   def base_uri
     ENV['CRISCO_BASE_URI'] || die('CRISCO_BASE_URI')
   end
@@ -39,7 +59,7 @@ class Api
   end
 end
 
-class FetchLinksList
+class FetchLinks
   include Enumerable
 
   def each
@@ -47,12 +67,34 @@ class FetchLinksList
   end
 
   def links
-    @links ||= parsed_results["links"].map{|l| OpenStruct.new(l.symbolize_keys)}
+    @links ||= parsed_results["links"].map{|l| Link.from_hash(l.symbolize_keys)}
   end
 
   private
   def raw_request_result
     @result ||= Api.new.get("/links")
+  end
+
+  def parsed_results
+    JSON.parse(raw_request_result)
+  end
+end
+
+class FetchLink
+
+  attr_reader :slug
+
+  def initialize slug
+    @slug = slug
+  end
+
+  def link
+    @link ||= Link.from_hash(parsed_results["link"].symbolize_keys)
+  end
+
+  private
+  def raw_request_result
+    @result ||= Api.new.get("/links/#{slug}")
   end
 
   def parsed_results
@@ -118,7 +160,7 @@ class Crisco < Thor
   desc 'list', 'list all shortened links'
   def list
     table = [ ['Slug', 'Original URL', 'Short URL', 'Created At', 'Visit Count'] ]
-    links_list = FetchLinksList.new
+    links_list = FetchLinks.new
     links_list.each do |link|
       table << [link.slug, link.original_url[0..40], link.short_url, link.created_at, link.visits_count]
     end
@@ -134,6 +176,21 @@ class Crisco < Thor
     end
     linker = CreateNewLink.new(original_url)
     say linker.result_message
+  end
+
+  map "-s" => :show
+
+  desc 'show', 'list details of a link'
+  def show slug=nil
+    unless slug
+      slug = ask 'What is the slug of the URL?'
+    end
+    link = FetchLink.new(slug).link
+    say "Link: #{link.slug}", :green
+    say "Original URL: #{link.original_url}"
+    say "Short URL: #{link.short_url}"
+    say "Created At: #{link.created_at}"
+    say "Visits: #{link.visits_count}"
   end
 
   map "-d" => :delete
