@@ -4,7 +4,6 @@ require 'pry'
 require 'thor'
 require 'curb'
 require 'json'
-require 'ostruct'
 require 'active_support/core_ext/hash'
 require 'active_support/core_ext/array'
 
