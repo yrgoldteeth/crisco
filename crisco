@@ -1,15 +1,14 @@
 #!/usr/bin/env ruby
 
-require 'pry'
 require 'thor'
 require 'curb'
 require 'json'
-require 'ostruct'
+require 'csv'
 require 'active_support/core_ext/hash'
 require 'active_support/core_ext/array'
 
 Link = Struct.new(:slug, :original_url, :short_url, :created_at, :visits_count) do
-  def self.from_hash(attributes)
+  def self.from_hash attributes
     instance = self.new
     attributes.each do |key, value|
       instance[key] = value
@@ -17,15 +16,21 @@ Link = Struct.new(:slug, :original_url, :short_url, :created_at, :visits_count) 
     instance
   end
 
+  # @return [Hash]
   def attributes
     members.each_with_object({}) do |name, result|
       result[name] = self[name]
     end
   end
+
+  # @return [Array]
+  def to_a shorten_original_url=false
+    return [slug, original_url[0..40], short_url, created_at, visits_count] if shorten_original_url
+    [slug, original_url, short_url, created_at, visits_count]
+  end
 end
 
 class Api
-
   def method_missing meth, *args, &block
     [:get, :delete].include?(meth) ? make_api_call(meth, args) : super
   end
@@ -59,8 +64,16 @@ class Api
   end
 end
 
+module ResultParser
+  private
+  def parsed_results
+    JSON.parse(raw_request_result)
+  end
+end
+
 class FetchLinks
   include Enumerable
+  include ResultParser
 
   def each
     links.map {|link| yield link}
@@ -74,13 +87,10 @@ class FetchLinks
   def raw_request_result
     @result ||= Api.new.get("/links")
   end
-
-  def parsed_results
-    JSON.parse(raw_request_result)
-  end
 end
 
 class FetchLink
+  include ResultParser
 
   attr_reader :slug
 
@@ -96,13 +106,10 @@ class FetchLink
   def raw_request_result
     @result ||= Api.new.get("/links/#{slug}")
   end
-
-  def parsed_results
-    JSON.parse(raw_request_result)
-  end
 end
 
 class CreateNewLink
+  include ResultParser
 
   attr_reader :original_url
 
@@ -119,16 +126,13 @@ class CreateNewLink
   end
 
   private
-  def parsed_results
-    JSON.parse(raw_request_result)
-  end
-
   def raw_request_result
     @result ||= Api.new.get("/l", {original_url: original_url})
   end
 end
 
 class DeleteLink
+  include ResultParser
 
   attr_reader :slug
 
@@ -145,30 +149,39 @@ class DeleteLink
   end
 
   private
-  def parsed_results
-    JSON.parse(raw_request_result)
-  end
-
   def raw_request_result
     @result ||= Api.new.delete("/links/#{slug}")
   end
 end
 
 class Crisco < Thor
-  map "-l" => :list
+  LIST_HEADERS = ['Slug', 'Original URL', 'Short URL', 'Created At', 'Visit Count']
 
+  map "l" => :list
   desc 'list', 'list all shortened links'
   def list
-    table = [ ['Slug', 'Original URL', 'Short URL', 'Created At', 'Visit Count'] ]
+    table = [ LIST_HEADERS ]
     links_list = FetchLinks.new
     links_list.each do |link|
-      table << [link.slug, link.original_url[0..40], link.short_url, link.created_at, link.visits_count]
+      table << link.to_a(true)
     end
     print_table table
   end
 
-  map "-n" => :new
+  map "c" => :csv
+  desc 'csv', 'list all links in csv'
+  def csv
+    _csv = CSV.generate do |csv|
+      csv << LIST_HEADERS
+      links_list = FetchLinks.new
+      links_list.each do |link|
+        csv << link.to_a
+      end
+    end
+    say _csv
+  end
 
+  map "n" => :new
   desc 'new', 'shorten a new link'
   def new original_url=nil
     unless original_url
@@ -178,8 +191,7 @@ class Crisco < Thor
     say linker.result_message
   end
 
-  map "-s" => :show
-
+  map "s" => :show
   desc 'show', 'list details of a link'
   def show slug=nil
     unless slug
@@ -193,8 +205,7 @@ class Crisco < Thor
     say "Visits: #{link.visits_count}"
   end
 
-  map "-d" => :delete
-
+  map "d" => :delete
   desc 'delete', 'delete a link'
   def delete slug=nil
     unless slug
@@ -211,3 +222,4 @@ rescue => e
   $stderr.puts "[ERROR] " + e.message
   exit(1)
 end
+
