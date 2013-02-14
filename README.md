@@ -14,6 +14,8 @@ So, I decided to whip up a little Rails application so that I can run my
 own URL shortening service, and thus crisco was born.  It runs easily on
 for free on [Heroku](http://heroku.com).  
 
+You will need to set the CRISCO_SECRET environment variable.
+
 Crisco uses the indispensable
 [devise](https://github.com/plataformatec/devise) authentication
 library, and it should be multi-user ready, though I have only used it
