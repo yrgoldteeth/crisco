@@ -22,7 +22,7 @@ end
 
 group :test, :development do
   gem 'pry-rails'
-  gem 'thin'
+  gem 'foreman'
   gem 'curb' #for cli
 end
 
