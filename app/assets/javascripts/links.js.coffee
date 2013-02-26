@@ -54,7 +54,7 @@ handleShortenLink = () ->
 $(document).ready ->
 
   $('body').timeago()
-  handleShareInfo() 
+  handleShareInfo()
   handleDeletion()
   handleShortenLink()
 
