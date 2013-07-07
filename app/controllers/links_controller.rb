@@ -8,6 +8,7 @@ class LinksController < ApplicationController
   def create
     if params[:original_url].present?
       link = current_user.links.create(original_url: params[:original_url])
+      # TODO make this not so horrible
       if params[:simple] && params[:simple] == 't'
         render text: short_link_url(link)
       else
