@@ -8,7 +8,11 @@ class LinksController < ApplicationController
   def create
     if params[:original_url].present?
       link = current_user.links.create(original_url: params[:original_url])
-      render json: {shorturl: short_link_url(link)}
+      if params[:simple] && params[:simple] == 't'
+        render text: short_link_url(link)
+      else
+        render json: {shorturl: short_link_url(link)}
+      end
     else
       render json: {success: false}
     end
